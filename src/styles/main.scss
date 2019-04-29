@@ -1,0 +1,99 @@
+$main-font: 'Roboto', sans-serif;
+$tonys-pink: #e58585;
+
+body , html, p {
+	margin: 0;
+	padding: 0;	
+	box-sizing: border-box;
+	font-family: $main-font;
+}
+
+body {
+	background-color: #fca6a6;
+}
+
+.score-table {
+	display: flex;
+	justify-content: space-around;
+	position: absolute;
+	width: 100%;
+	padding: 10px 0;
+	
+	strong, span {
+		display: block;
+		text-align: center;
+	}
+
+	strong {
+		margin-bottom: 10px;
+		font-size: 26px;
+	}
+
+	span {
+		font-size: 22px;
+	}
+}
+
+#game-holder {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	margin: 0 auto;
+}
+
+.tic-tac-row {
+	&:nth-child(2) {
+		border-width: 8px 0;
+		border-style: solid;
+		border-color: $tonys-pink;
+	}
+
+	div {
+		display: inline-block;
+		position: relative;
+		vertical-align: bottom;
+		height: 100px;
+		width: 100px;
+		// margin: 2px;
+		// background: pink;
+		cursor: pointer;
+
+		&:nth-child(1), &:nth-child(3) {
+			border-style: solid;
+			border-color: $tonys-pink;
+		}
+
+		&:nth-child(1) {
+			border-width: 0 8px 0 0;
+		}
+
+		&:nth-child(3) {
+			border-width: 0 0 0 8px;
+		}
+	}
+}
+
+.marked {
+	pointer-events: none;
+}
+
+.sign-o, .sign-x {
+	display: block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 40px;
+	height: 40px;
+	background-size: cover;
+}
+
+.sign-x {
+	background-image: url('../../images/tic_tac_x.png');
+}
+
+.sign-o {
+	background-image: url('../../images/tic_tac_o.png');
+}
