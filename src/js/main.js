@@ -17,8 +17,10 @@ const ticTacToeController = {
 		[1, 4, 7],
 		[2, 4, 6],
 		[2, 5, 8]
-	],
+  ],
+  lastCPUPosition: null,
 	init() {
+    console.log('init');
 		this.renderGrid();
 		this.markArea();
 		this.renderPlayerScore();
@@ -46,7 +48,7 @@ const ticTacToeController = {
 		}
 	},
 	markArea() {
-		var gridSquares = this.getSquaresElements(),
+		const gridSquares = this.getSquaresElements(),
 				_self = this;
 
 		gridSquares.forEach((element, index) => {
@@ -66,7 +68,8 @@ const ticTacToeController = {
 		});
 	},
 	gameEndCallbacks(score, isPlayerWinning) {
-		this[score]++;
+    this[score]++;
+    this.lastCPUPosition = null;
 		isPlayerWinning ? this.renderPlayerScore() : this.renderComputerScore();
 		this.startGameAgain();
 	},
@@ -74,7 +77,7 @@ const ticTacToeController = {
 		this.getUnmarkedSquaresElements().length ? this.executeComputerMark() : this.startGameAgain()
 	},
 	executeComputerMark() {
-		var _self = this;
+		const _self = this;
 
 		setTimeout(() => {
 			_self.computerMark();
@@ -85,16 +88,16 @@ const ticTacToeController = {
 		}, _self.settings.cpMarkTimeDelay);
 	},
 	checkCombnations(mark) {
-		var squares = this.getSquaresElements(),
+		let squares = this.getSquaresElements(),
 				currentCombination = [],
 				hasWinningCombination = false,
 				_self = this;
 
 		squares.forEach((el, index) => {
 			if(el.classList.contains(mark)) currentCombination.push(index);
-		});
+    });
 
-		for(var i = 0 ; i < this.winningCombinations.length; i++) {
+		for(let i = 0 ; i < this.winningCombinations.length; i++) {
 			if(_self.isWinningCombination(this.winningCombinations[i], currentCombination)) return hasWinningCombination = true;
 		}
 		
@@ -105,14 +108,83 @@ const ticTacToeController = {
 	},
 	computerMark() {
 		const _availableSquares = this.getUnmarkedSquaresElements(),
-					item = _availableSquares[Math.floor(Math.random() * _availableSquares.length)],
 					computerCheck = document.createElement('span'),
-					_self = this;
+          squares = this.getSquaresElements(),
+          _self = this;
 
-		computerCheck.classList.add('sign-o');
+    let item = null;
+    let playerMarkIndexes = [];
+
+    squares.forEach((el, index) => {
+      if(el.classList.contains('p-mark')) {
+        playerMarkIndexes.push(index);
+      }
+    });
+    
+    let winningCombos = [];
+
+    playerMarkIndexes.forEach((el) => {
+      if(winningCombos.length && winningCombos.length > 1) {
+        winningCombos = this.filterCombosBasedOnPlayerMarks(winningCombos, el);
+      } else if(!winningCombos.length) {
+        winningCombos = this.filterCombosBasedOnPlayerMarks(this.winningCombinations, el);
+      }
+    });
+
+    if(winningCombos.length) {
+      if(winningCombos.length === 1) {
+        if(squares[winningCombos[0][0]].classList.contains('marked')) {
+          const _wb = this.filterCombosBasedOnPlayerMarks(this.winningCombinations, this.lastCPUPosition);
+          item = this.filterAvailableComputerMarks(squares, _wb, _availableSquares);
+
+        } else {
+          item = squares[winningCombos[0][0]];
+          this.lastCPUPosition = winningCombos[0][0];
+        }
+      } else {
+        item = this.filterAvailableComputerMarks(squares, winningCombos, _availableSquares);
+      }
+    } else {
+      const _wb = this.filterCombosBasedOnPlayerMarks(this.winningCombinations, this.lastCPUPosition);
+      item = this.filterAvailableComputerMarks(squares, _wb, _availableSquares);
+    }
+    
+    computerCheck.classList.add('sign-o');
 		item.appendChild(computerCheck);
 		item.classList.add('marked', _self.settings.computerMark);
-	},
+  },
+  filterAvailableComputerMarks(squares, arr, _availableSquares) {
+    let elementFound = false,
+        item = null;
+          
+    for(let i = 0; i < arr.length; i++) {
+      for(let j = 0 ; j < arr[i].length; j++) {
+        if(!elementFound) {
+          if(!squares[arr[i][j]].classList.contains('marked')) {
+            item = squares[arr[i][j]];
+            this.lastCPUPosition = [...squares].indexOf(squares[arr[i][j]]);
+            elementFound = true;
+          }
+        }
+      }
+    }
+
+    if(!item) {
+      let randomNum = Math.round(Math.random() * (_availableSquares.length - 1));
+      item = _availableSquares[randomNum];
+    }
+
+    return item;
+  },
+  filterCombosBasedOnPlayerMarks(arr, el) {
+    return arr.filter((comb) => comb.includes(el)).map((arr) => {
+      const _arr = [...arr];
+      const findIndex = _arr.findIndex((num) => num === el);
+      _arr.splice(findIndex, 1);
+
+      return _arr;
+    });
+  },
 	startGameAgain() {
 		this.getGameHolder().innerHTML = '';
 		this.renderGrid();
