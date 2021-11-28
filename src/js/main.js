@@ -20,7 +20,6 @@ const ticTacToeController = {
   ],
   lastCPUPosition: null,
 	init() {
-    console.log('init');
 		this.renderGrid();
 		this.markArea();
 		this.renderPlayerScore();
