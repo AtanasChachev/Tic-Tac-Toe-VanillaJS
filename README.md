@@ -12,3 +12,4 @@ Browser-sync will automatically start a local server for you.
 
 1. Level difficulties.
 2. UI Animations.
+3. Refactor the codebase (e.g splitting the styles in differnet modules).
